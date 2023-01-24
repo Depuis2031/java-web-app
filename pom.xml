@@ -108,7 +108,7 @@
 	</distributionManagement>
 	
 	<build>
-		<finalName>web-app</finalName>
+		<finalName>java-web-app</finalName>
 		
 		<plugins>
 			<plugin>
