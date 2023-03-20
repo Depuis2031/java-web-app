@@ -16,7 +16,7 @@ stages{
 stage('1CodeClone'){
 steps{
 sh "echo 'Clonning code from GitHub'"
-git "https://github.com/depuis2031/maven-web-app.git"
+git "https://github.com/Depuis2031/java-web-app.git"
 }
 }
 
