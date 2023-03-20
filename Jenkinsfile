@@ -1,7 +1,7 @@
 pipeline{
 
 environment {
-    registry = "depuis2031/java-web-app:1"  
+    registry = "depuis2031/java-web-app"  
     dockerImage = ''
     registryCredential = 'DOCKERHUB-CRED'
   }
@@ -16,7 +16,7 @@ stages{
 stage('1CodeClone'){
 steps{
 sh "echo 'Clonning code from GitHub'"
-git "https://github.com/Depuis2031/java-web-app.git"
+git "https://github.com/depuis2031/maven-web-app.git"
 }
 }
 
@@ -46,33 +46,64 @@ sh "mvn deploy"
 stage('Build dockerImage'){
 steps{
 script {
-dockerImage = docker.build registry + ":$BUILD_NUMBER"
+dockerImage = docker.build registry + ":$BUILD_NUMBER" //The BuildNumber will act as tag
 }  
 }
 }
 
-stage('UploadImage2 DockerHub') {
+stage('PushImage2 DockerHub') {
 steps{    
 script {
 docker.withRegistry( '', registryCredential ) {
 dockerImage.push()
+sh "echo 'Image successfully pushed to DockerHub'"
+
 }
 }
 }
 }
 
-stage('RemoveDockerImages'){
+stage('Remove DockerImages'){
 steps{
 sh 'docker rmi -f $(docker images -q)'
 
 }
 }
-stage('Trigger ManifestUpdate') {
-steps{
-                echo "triggering updatemanifestjob"
-                build job: 'updatemanifestspringapp', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
-}
 
 }
 }
+
+/*
+post{
+always{emailext body: '''Hi All,
+
+Please kindly review the build status and act accordingly.
+
+Thanks
+Obinna''', recipientProviders: [buildUser(), contributor(), culprits(), previous(), developers(), upstreamDevelopers(), requestor(), brokenTestsSuspects(), brokenBuildSuspects()], subject: 'Build Status', to: 'testteam@gmail.com'
+}
+success
+{emailext body: '''Hi All,
+
+T.
+
+Thanks
+Obinna''', recipientProviders: [buildUser(), contributor(), culprits(), previous(), developers(), upstreamDevelopers(), requestor(), brokenTestsSuspects(), brokenBuildSuspects()], subject: 'Build Status', to: 'testteam@gmail.com'
+}
+
+
+failure{
+emailext body: '''Hi All,
+
+Please kindly review the build status and act accordingly.
+
+Thanks
+Obinna''', recipientProviders: [buildUser(), contributor(), culprits(), previous(), developers(), upstreamDevelopers(), requestor(), brokenTestsSuspects(), brokenBuildSuspects()], subject: 'Build Status', to: 'testteam@gmail.com'
+
+}
+
+
+}
+
+}
+*/
